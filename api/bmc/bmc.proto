@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "github.com/stopa323/kimbap/api/bmc";
+
+package bmc;
+
+
+service BMC {
+    rpc PowerOn (BMCOperationRequest) returns (BMCOperationResponse) {}
+}
+
+message BMCOperationRequest {
+    string bmcAddress = 1;
+}
+
+message BMCOperationResponse {
+    bool status = 1;
+}
