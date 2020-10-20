@@ -6,13 +6,21 @@ package bmc;
 
 
 service BMC {
-    rpc GetServerPowerStatus (BMCAccess) returns (ServerPowerStatus) {}
+    rpc GetServerPowerStatus (BMCAccess) returns (ServerPowerStatusResponse) {}
+}
+
+enum PowerStatus {
+    UNKNOWN = 0;
+    ON = 1;
+    OFF = 2;
+    POWERING_ON = 3;
+    POWERING_OFF = 4;
 }
 
 message BMCAccess {
     string connectionString = 1;
 }
 
-message ServerPowerStatus {
-    string status = 1;
+message ServerPowerStatusResponse {
+    PowerStatus status = 1;
 }

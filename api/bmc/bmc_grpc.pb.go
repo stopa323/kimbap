@@ -17,7 +17,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BMCClient interface {
-	GetServerPowerStatus(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*ServerPowerStatus, error)
+	GetServerPowerStatus(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*ServerPowerStatusResponse, error)
 }
 
 type bMCClient struct {
@@ -28,8 +28,8 @@ func NewBMCClient(cc grpc.ClientConnInterface) BMCClient {
 	return &bMCClient{cc}
 }
 
-func (c *bMCClient) GetServerPowerStatus(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*ServerPowerStatus, error) {
-	out := new(ServerPowerStatus)
+func (c *bMCClient) GetServerPowerStatus(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*ServerPowerStatusResponse, error) {
+	out := new(ServerPowerStatusResponse)
 	err := c.cc.Invoke(ctx, "/bmc.BMC/GetServerPowerStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (c *bMCClient) GetServerPowerStatus(ctx context.Context, in *BMCAccess, opt
 // All implementations must embed UnimplementedBMCServer
 // for forward compatibility
 type BMCServer interface {
-	GetServerPowerStatus(context.Context, *BMCAccess) (*ServerPowerStatus, error)
+	GetServerPowerStatus(context.Context, *BMCAccess) (*ServerPowerStatusResponse, error)
 	mustEmbedUnimplementedBMCServer()
 }
 
@@ -49,7 +49,7 @@ type BMCServer interface {
 type UnimplementedBMCServer struct {
 }
 
-func (UnimplementedBMCServer) GetServerPowerStatus(context.Context, *BMCAccess) (*ServerPowerStatus, error) {
+func (UnimplementedBMCServer) GetServerPowerStatus(context.Context, *BMCAccess) (*ServerPowerStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetServerPowerStatus not implemented")
 }
 func (UnimplementedBMCServer) mustEmbedUnimplementedBMCServer() {}

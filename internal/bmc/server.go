@@ -13,12 +13,17 @@ type BMCServer struct {
 	pb.UnimplementedBMCServer
 }
 
-func (s *BMCServer) GetServerPowerStatus(ctx context.Context, bmc *pb.BMCAccess) (*pb.ServerPowerStatus, error) {
+func (s *BMCServer) GetServerPowerStatus(
+	ctx context.Context,
+	bmc *pb.BMCAccess) (
+	*pb.ServerPowerStatusResponse,
+	error) {
 	log.Printf("get power status: %v", bmc.GetConnectionString())
 
 	c, err := gf.ConnectDefault(bmc.GetConnectionString())
 	if err != nil {
-		return nil, fmt.Errorf("could not connect to: %v", bmc.GetConnectionString())
+		return nil, fmt.Errorf("could not connect to: %v",
+			bmc.GetConnectionString())
 	}
 
 	computerSystems, err := c.Service.Systems()
@@ -27,8 +32,12 @@ func (s *BMCServer) GetServerPowerStatus(ctx context.Context, bmc *pb.BMCAccess)
 	}
 
 	if 1 != len(computerSystems) {
-		return &pb.ServerPowerStatus{Status: "UNKNOWN"}, nil
+		return &pb.ServerPowerStatusResponse{
+				Status: pb.PowerStatus_UNKNOWN},
+			nil
 	}
 
-	return &pb.ServerPowerStatus{Status: string(computerSystems[0].PowerState)}, nil
+	return &pb.ServerPowerStatusResponse{
+		Status: ConvertGofishPowerStateToProto(string(
+			computerSystems[0].PowerState))}, nil
 }
