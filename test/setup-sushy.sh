@@ -20,4 +20,4 @@ virsh define domain.xml
 rm -f domain.xml
 
 # Start BMC emulator
-sushy-emulator --port 8000 --libvirt-uri "qemu:///system"
+sushy-emulator --port 8001 --libvirt-uri "qemu:///system"

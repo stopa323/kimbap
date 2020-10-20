@@ -6,13 +6,13 @@ package bmc;
 
 
 service BMC {
-    rpc PowerOn (BMCOperationRequest) returns (BMCOperationResponse) {}
+    rpc GetServerPowerStatus (BMCAccess) returns (ServerPowerStatus) {}
 }
 
-message BMCOperationRequest {
-    string bmcAddress = 1;
+message BMCAccess {
+    string connectionString = 1;
 }
 
-message BMCOperationResponse {
-    bool status = 1;
+message ServerPowerStatus {
+    string status = 1;
 }

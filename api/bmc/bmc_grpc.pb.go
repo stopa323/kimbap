@@ -17,7 +17,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BMCClient interface {
-	PowerOn(ctx context.Context, in *BMCOperationRequest, opts ...grpc.CallOption) (*BMCOperationResponse, error)
+	GetServerPowerStatus(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*ServerPowerStatus, error)
 }
 
 type bMCClient struct {
@@ -28,9 +28,9 @@ func NewBMCClient(cc grpc.ClientConnInterface) BMCClient {
 	return &bMCClient{cc}
 }
 
-func (c *bMCClient) PowerOn(ctx context.Context, in *BMCOperationRequest, opts ...grpc.CallOption) (*BMCOperationResponse, error) {
-	out := new(BMCOperationResponse)
-	err := c.cc.Invoke(ctx, "/bmc.BMC/PowerOn", in, out, opts...)
+func (c *bMCClient) GetServerPowerStatus(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*ServerPowerStatus, error) {
+	out := new(ServerPowerStatus)
+	err := c.cc.Invoke(ctx, "/bmc.BMC/GetServerPowerStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (c *bMCClient) PowerOn(ctx context.Context, in *BMCOperationRequest, opts .
 // All implementations must embed UnimplementedBMCServer
 // for forward compatibility
 type BMCServer interface {
-	PowerOn(context.Context, *BMCOperationRequest) (*BMCOperationResponse, error)
+	GetServerPowerStatus(context.Context, *BMCAccess) (*ServerPowerStatus, error)
 	mustEmbedUnimplementedBMCServer()
 }
 
@@ -49,8 +49,8 @@ type BMCServer interface {
 type UnimplementedBMCServer struct {
 }
 
-func (UnimplementedBMCServer) PowerOn(context.Context, *BMCOperationRequest) (*BMCOperationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PowerOn not implemented")
+func (UnimplementedBMCServer) GetServerPowerStatus(context.Context, *BMCAccess) (*ServerPowerStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetServerPowerStatus not implemented")
 }
 func (UnimplementedBMCServer) mustEmbedUnimplementedBMCServer() {}
 
@@ -65,20 +65,20 @@ func RegisterBMCServer(s *grpc.Server, srv BMCServer) {
 	s.RegisterService(&_BMC_serviceDesc, srv)
 }
 
-func _BMC_PowerOn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BMCOperationRequest)
+func _BMC_GetServerPowerStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BMCAccess)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BMCServer).PowerOn(ctx, in)
+		return srv.(BMCServer).GetServerPowerStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bmc.BMC/PowerOn",
+		FullMethod: "/bmc.BMC/GetServerPowerStatus",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BMCServer).PowerOn(ctx, req.(*BMCOperationRequest))
+		return srv.(BMCServer).GetServerPowerStatus(ctx, req.(*BMCAccess))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -88,8 +88,8 @@ var _BMC_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*BMCServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PowerOn",
-			Handler:    _BMC_PowerOn_Handler,
+			MethodName: "GetServerPowerStatus",
+			Handler:    _BMC_GetServerPowerStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

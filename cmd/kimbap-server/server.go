@@ -1,22 +1,13 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net"
 
 	pb "github.com/stopa323/kimbap/api/bmc"
+	bmc "github.com/stopa323/kimbap/internal/bmc"
 	"google.golang.org/grpc"
 )
-
-type kimbapServer struct {
-	pb.UnimplementedBMCServer
-}
-
-func (s *kimbapServer) PowerOn(ctx context.Context, req *pb.BMCOperationRequest) (*pb.BMCOperationResponse, error) {
-	log.Printf("PowerON: %v", req.GetBmcAddress())
-	return &pb.BMCOperationResponse{Status: true}, nil
-}
 
 func main() {
 	log.Println("Siema Heniu!")
@@ -26,7 +17,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterBMCServer(s, &kimbapServer{})
+	pb.RegisterBMCServer(s, &bmc.BMCServer{})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

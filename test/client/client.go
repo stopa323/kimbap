@@ -10,11 +10,11 @@ import (
 )
 
 const (
-	address     = "localhost:8000"
-	defaultName = "world"
+	address = "localhost:8000"
 )
 
 func main() {
+	log.Print("Client start...")
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
@@ -25,7 +25,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := c.PowerOn(ctx, &pb.BMCOperationRequest{BmcAddress: "1.2.3.4"})
+	r, err := c.GetServerPowerStatus(ctx, &pb.BMCAccess{ConnectionString: "http://localhost:8001"})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
