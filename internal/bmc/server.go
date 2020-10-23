@@ -69,11 +69,44 @@ func (s *BMCServer) PowerServerOff(
 
 	// Each computer system that is found is gracefuly shut down
 	for _, system := range systems {
-		err = system.Reset(redfish.GracefulShutdownResetType)
+		err = system.Reset(redfish.ForceOffResetType)
 		if err != nil {
 			return nil, status.Errorf(
 				codes.Internal,
-				fmt.Sprintf("Failed to shut down computer: %v", err))
+				fmt.Sprintf("Failed to power off computer: %v", err))
+		}
+	}
+
+	// Empty message on success
+	return &pb.Empty{}, nil
+}
+
+func (s *BMCServer) PowerServerOn(
+	ctx context.Context,
+	bmc *pb.BMCAccess) (*pb.Empty, error) {
+	c, err := gf.ConnectDefault(bmc.GetConnectionString())
+	if err != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Unable to connect to %v",
+				bmc.GetConnectionString()))
+	}
+	defer c.Logout()
+
+	// Query the computer systems
+	systems, err := c.Service.Systems()
+	if err != nil {
+		return nil, status.Errorf(
+			codes.Internal, "Unable to fetch computer systems")
+	}
+
+	// Each computer system that is found is gracefuly shut down
+	for _, system := range systems {
+		err = system.Reset(redfish.ForceOnResetType)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Failed to power on computer: %v", err))
 		}
 	}
 

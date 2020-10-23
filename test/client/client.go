@@ -40,7 +40,7 @@ func main() {
 	defer conn.Close()
 	c := pb.NewBMCClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
 	switch operation {
@@ -55,6 +55,13 @@ func main() {
 	case "power-off":
 		log.Printf("Powering off...")
 		_, err := c.PowerServerOff(
+			ctx, &pb.BMCAccess{ConnectionString: bmcAddress})
+		if err != nil {
+			log.Fatalf("Err: %v", err)
+		}
+	case "power-on":
+		log.Printf("Powering on...")
+		_, err := c.PowerServerOn(
 			ctx, &pb.BMCAccess{ConnectionString: bmcAddress})
 		if err != nil {
 			log.Fatalf("Err: %v", err)
