@@ -18,6 +18,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BMCClient interface {
 	GetServerPowerStatus(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*ServerPowerStatusResponse, error)
+	PowerServerOn(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*Empty, error)
+	PowerServerOff(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type bMCClient struct {
@@ -37,11 +39,31 @@ func (c *bMCClient) GetServerPowerStatus(ctx context.Context, in *BMCAccess, opt
 	return out, nil
 }
 
+func (c *bMCClient) PowerServerOn(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/bmc.BMC/PowerServerOn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bMCClient) PowerServerOff(ctx context.Context, in *BMCAccess, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/bmc.BMC/PowerServerOff", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BMCServer is the server API for BMC service.
 // All implementations must embed UnimplementedBMCServer
 // for forward compatibility
 type BMCServer interface {
 	GetServerPowerStatus(context.Context, *BMCAccess) (*ServerPowerStatusResponse, error)
+	PowerServerOn(context.Context, *BMCAccess) (*Empty, error)
+	PowerServerOff(context.Context, *BMCAccess) (*Empty, error)
 	mustEmbedUnimplementedBMCServer()
 }
 
@@ -51,6 +73,12 @@ type UnimplementedBMCServer struct {
 
 func (UnimplementedBMCServer) GetServerPowerStatus(context.Context, *BMCAccess) (*ServerPowerStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetServerPowerStatus not implemented")
+}
+func (UnimplementedBMCServer) PowerServerOn(context.Context, *BMCAccess) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PowerServerOn not implemented")
+}
+func (UnimplementedBMCServer) PowerServerOff(context.Context, *BMCAccess) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PowerServerOff not implemented")
 }
 func (UnimplementedBMCServer) mustEmbedUnimplementedBMCServer() {}
 
@@ -83,6 +111,42 @@ func _BMC_GetServerPowerStatus_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BMC_PowerServerOn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BMCAccess)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BMCServer).PowerServerOn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bmc.BMC/PowerServerOn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BMCServer).PowerServerOn(ctx, req.(*BMCAccess))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BMC_PowerServerOff_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BMCAccess)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BMCServer).PowerServerOff(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bmc.BMC/PowerServerOff",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BMCServer).PowerServerOff(ctx, req.(*BMCAccess))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _BMC_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "bmc.BMC",
 	HandlerType: (*BMCServer)(nil),
@@ -90,6 +154,14 @@ var _BMC_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetServerPowerStatus",
 			Handler:    _BMC_GetServerPowerStatus_Handler,
+		},
+		{
+			MethodName: "PowerServerOn",
+			Handler:    _BMC_PowerServerOn_Handler,
+		},
+		{
+			MethodName: "PowerServerOff",
+			Handler:    _BMC_PowerServerOff_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net"
 
@@ -9,16 +11,27 @@ import (
 	"google.golang.org/grpc"
 )
 
-func main() {
-	log.Println("Siema Heniu!")
+var address string
+var port string
 
-	lis, err := net.Listen("tcp", ":8000")
+func init() {
+	flag.StringVar(&address, "address", "127.0.0.1",
+		"gRPC server listen address")
+	flag.StringVar(&port, "port", "8000", "gRPC server listen port")
+}
+
+func main() {
+	flag.Parse()
+
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", address, port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatalf("failed to listen on %s:%s: %v", address, port, err)
 	}
+	log.Printf("Listen on %s:%s", address, port)
+
 	s := grpc.NewServer()
 	pb.RegisterBMCServer(s, &bmc.BMCServer{})
 	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.Fatalf("failed to serve gRPC: %v", err)
 	}
 }

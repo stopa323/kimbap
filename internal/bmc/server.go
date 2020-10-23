@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/stmcginnis/gofish"
 	gf "github.com/stmcginnis/gofish"
+	"github.com/stmcginnis/gofish/redfish"
+	_ "github.com/stmcginnis/gofish/redfish"
 	pb "github.com/stopa323/kimbap/api/bmc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -44,4 +47,42 @@ func (s *BMCServer) GetServerPowerStatus(
 	return &pb.ServerPowerStatusResponse{
 		Status: ConvertGofishPowerStateToProto(string(
 			computerSystems[0].PowerState))}, nil
+}
+
+func (s *BMCServer) PowerServerOff(
+	ctx context.Context,
+	bmc *pb.BMCAccess) (*pb.Empty, error) {
+	config := gf.ClientConfig{
+		Endpoint: bmc.GetConnectionString(),
+	}
+
+	// Create new connection to Redfish service
+	c, err := gofish.Connect(config)
+	if err != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Unable to connect to %v",
+				bmc.GetConnectionString()))
+	}
+	defer c.Logout()
+
+	// Query the computer systems
+	systems, err := c.Service.Systems()
+	if err != nil {
+		return nil, status.Errorf(
+			codes.Internal, "Unable to fetch computer systems")
+	}
+
+	// Each computer system that is found is gracefuly shut down
+	for _, system := range systems {
+		err = system.Reset(redfish.GracefulShutdownResetType)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Failed to shut down computer: %v", err))
+		}
+	}
+
+	// Empty message on success
+	return &pb.Empty{}, nil
 }
