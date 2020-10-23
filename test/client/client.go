@@ -49,8 +49,17 @@ func main() {
 		r, err := c.GetServerPowerStatus(
 			ctx, &pb.BMCAccess{ConnectionString: bmcAddress})
 		if err != nil {
-			log.Fatalf("could not greet: %v", err)
+			log.Fatalf("Err: %v", err)
 		}
 		log.Printf("Result: %v", r.GetStatus())
+	case "power-off":
+		log.Printf("Powering off...")
+		_, err := c.PowerServerOff(
+			ctx, &pb.BMCAccess{ConnectionString: bmcAddress})
+		if err != nil {
+			log.Fatalf("Err: %v", err)
+		}
+	default:
+		log.Fatalf("Unknown operation: %s", operation)
 	}
 }

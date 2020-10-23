@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/stmcginnis/gofish"
 	gf "github.com/stmcginnis/gofish"
 	"github.com/stmcginnis/gofish/redfish"
 	_ "github.com/stmcginnis/gofish/redfish"
@@ -52,12 +51,7 @@ func (s *BMCServer) GetServerPowerStatus(
 func (s *BMCServer) PowerServerOff(
 	ctx context.Context,
 	bmc *pb.BMCAccess) (*pb.Empty, error) {
-	config := gf.ClientConfig{
-		Endpoint: bmc.GetConnectionString(),
-	}
-
-	// Create new connection to Redfish service
-	c, err := gofish.Connect(config)
+	c, err := gf.ConnectDefault(bmc.GetConnectionString())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
