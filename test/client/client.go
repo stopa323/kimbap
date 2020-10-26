@@ -26,12 +26,14 @@ func init() {
 func main() {
 	flag.Parse()
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(
-		serverAddress,
+	conn, err := grpc.DialContext(
+		ctx, serverAddress,
 		grpc.WithInsecure(),
-		grpc.WithBlock(),
-		grpc.WithTimeout(time.Duration(10)*time.Second))
+		grpc.WithBlock())
 
 	if err != nil {
 		log.Fatalf("Cloud not connect to %v: %v", serverAddress, err)
@@ -39,9 +41,6 @@ func main() {
 
 	defer conn.Close()
 	c := pb.NewBMCClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-	defer cancel()
 
 	switch operation {
 	case "get-power-status":

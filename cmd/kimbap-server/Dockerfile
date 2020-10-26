@@ -21,6 +21,17 @@ RUN --mount=target=. \
     CGO_ENABLED=0 \
     go build -o /go/bin/kimbap-server ./cmd/kimbap-server
 
+FROM golangci/golangci-lint:v1.27-alpine AS lint-base
+
+# Go linter runner target
+FROM base AS lint
+RUN --mount=target=. \
+    --mount=from=lint-base,src=/usr/bin/golangci-lint,target=/usr/bin/golangci-lint \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/root/.cache/golangci-lint \
+    CGO_ENABLED=0 \
+    golangci-lint run --timeout 10m0s ./...
+
 # Copy binary to Docker minimalistic scratch image 
 FROM scratch as bin
 COPY --from=build /go/bin/kimbap-server /go/bin/kimbap-server
