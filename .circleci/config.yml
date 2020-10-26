@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  my-first-job:
+    docker:
+      - image: circleci/golang:1.9
+
+    steps:
+      - checkout
+      - run:
+          name: Siemanko
+          command: |
+            echo "siema Heniu"
+
+workflows:
+  version: 2
+  my-first-workflow:
+    jobs:
+      - my-first-job
+      
+
