@@ -1,5 +1,6 @@
 # kimbap
 Hobby project for learning Go and gRPC
+
 [![CircleCI](https://circleci.com/gh/stopa323/kimbap.svg?style=svg)](https://circleci.com/gh/stopa323/kimbap)
 
 # Protobuf generation
