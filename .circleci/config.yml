@@ -1,8 +1,8 @@
 ---
-# Reusable section that keeps image and working directory consistent across jobs.
+# Reusable section that keeps executor and working directory consistent across jobs.
 defaults: &defaults
-  docker:
-    - image: circleci/golang:1.9
+  machine:
+      image: ubuntu-2004:202010-01
   working_directory: /go/src/github.com/stopa323/kimbap
 
 version: 2
