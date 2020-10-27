@@ -1,9 +1,12 @@
 ---
-# Reusable section that keeps executor and working directory consistent across jobs.
+# Reusable section that keeps base configuration consistent across jobs.
 defaults: &defaults
   machine:
       image: ubuntu-2004:202010-01
   working_directory: ~/github.com/stopa323/kimbap
+  environment:
+    # Enable Docker BuildKit
+    DOCKER_BUILDKIT: 1
 
 version: 2
 jobs:
