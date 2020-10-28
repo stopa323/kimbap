@@ -32,6 +32,13 @@ RUN --mount=target=. \
     CGO_ENABLED=0 \
     golangci-lint run --timeout 10m0s ./...
 
+# Unit tests target
+FROM base AS unit-tests
+RUN --mount=target=. \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 \
+    go test -v ./...
+
 # Copy binary to Docker minimalistic scratch image 
 FROM scratch as bin
 COPY --from=build /go/bin/kimbap-server /go/bin/kimbap-server

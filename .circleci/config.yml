@@ -4,9 +4,6 @@ defaults: &defaults
   machine:
       image: ubuntu-2004:202010-01
   working_directory: ~/github.com/stopa323/kimbap
-  environment:
-    # Enable Docker BuildKit
-    DOCKER_BUILDKIT: 1
 
 version: 2
 jobs:
@@ -17,6 +14,9 @@ jobs:
       - run:
           name: Run Go linter
           command: make lint
+      - run:
+          name: Run unit-tests
+          command: make unit-tests
       - run:
           name: Build Docker image
           command: make image
